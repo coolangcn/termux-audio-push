@@ -33,9 +33,18 @@ case "$1" in
         echo "正在配置Icecast服务器..."
         ICECAST_CONFIG="/data/data/com.termux/files/usr/etc/icecast.xml"
         ICECAST_LOG_DIR="/data/data/com.termux/files/usr/var/log/icecast"
+        ICECAST_WEB_DIR="/data/data/com.termux/files/usr/share/icecast/web"
+        ICECAST_ADMIN_DIR="/data/data/com.termux/files/usr/share/icecast/admin"
         
-        # 创建日志目录
+        # 创建必要的目录
         mkdir -p "$ICECAST_LOG_DIR"
+        mkdir -p "$ICECAST_WEB_DIR"
+        mkdir -p "$ICECAST_ADMIN_DIR"
+        
+        # 设置目录权限
+        chmod 755 "$ICECAST_LOG_DIR"
+        chmod 755 "$ICECAST_WEB_DIR"
+        chmod 755 "$ICECAST_ADMIN_DIR"
         
         # 设置日志文件权限
         touch "$ICECAST_LOG_DIR/error.log" "$ICECAST_LOG_DIR/access.log"
@@ -47,11 +56,12 @@ case "$1" in
             echo "已备份原始Icecast配置文件"
         fi
 
-        # 生成新的Icecast配置文件
+        # 生成新的Icecast配置文件，针对Termux环境优化
         cat > "$ICECAST_CONFIG" << 'EOF'
 <icecast>
-    <location>Earth</location>
+    <location>Termux Audio Stream</location>
     <admin>admin@localhost</admin>
+    <hostname>localhost</hostname>
 
     <limits>
         <clients>100</clients>
@@ -71,8 +81,6 @@ case "$1" in
         <admin-password>hackme</admin-password>
     </authentication>
 
-    <hostname>localhost</hostname>
-
     <listen-socket>
         <port>8000</port>
         <bind-address>0.0.0.0</bind-address>
@@ -80,6 +88,7 @@ case "$1" in
 
     <http-headers>
         <header name="Access-Control-Allow-Origin" value="*" />
+        <header name="Server" value="Termux Icecast" />
     </http-headers>
 
     <paths>
@@ -100,8 +109,8 @@ case "$1" in
     <security>
         <chroot>0</chroot>
         <changeowner>
-            <user>nobody</user>
-            <group>nogroup</group>
+            <user></user>
+            <group></group>
         </changeowner>
     </security>
 </icecast>
@@ -126,15 +135,27 @@ EOF
         # 启动服务器模式
         echo "正在启动Icecast服务器..."
         
-        # 确保日志目录存在
+        # 确保必要的目录和文件存在
         ICECAST_LOG_DIR="/data/data/com.termux/files/usr/var/log/icecast"
+        ICECAST_WEB_DIR="/data/data/com.termux/files/usr/share/icecast/web"
+        ICECAST_ADMIN_DIR="/data/data/com.termux/files/usr/share/icecast/admin"
+        
         mkdir -p "$ICECAST_LOG_DIR"
+        mkdir -p "$ICECAST_WEB_DIR"
+        mkdir -p "$ICECAST_ADMIN_DIR"
         
         # 设置日志文件权限
         touch "$ICECAST_LOG_DIR/error.log" "$ICECAST_LOG_DIR/access.log"
         chmod 666 "$ICECAST_LOG_DIR/error.log" "$ICECAST_LOG_DIR/access.log"
         
-        icecast -c /data/data/com.termux/files/usr/etc/icecast.xml -b
+        # 检查配置文件是否存在
+        ICECAST_CONFIG="/data/data/com.termux/files/usr/etc/icecast.xml"
+        if [ ! -f "$ICECAST_CONFIG" ]; then
+            echo "错误: Icecast配置文件不存在，请先运行安装命令"
+            exit 1
+        fi
+        
+        icecast -c "$ICECAST_CONFIG" -b
         echo "Icecast服务器已在后台启动，监听端口8000"
         echo "您可以通过 http://[手机IP]:8000 访问服务器状态页面"
         echo "获取手机IP地址: ./termux_audio_push.sh ip"
