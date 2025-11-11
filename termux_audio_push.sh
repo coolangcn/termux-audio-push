@@ -177,9 +177,9 @@ EOF
         echo "手机IP地址: $IP"
         echo "在电脑上访问 http://$IP:8000/live 来收听音频流"
         
-        # 开始推流
+        # 开始推流，添加content_type参数
         echo "正在启动音频推流..."
-        termux-microphone-record -r 16000 -c 1 | ffmpeg -f s16le -ar 16000 -ac 1 -i - -codec:a libmp3lame -q:a 4 -f mp3 icecast://source:hackme@localhost:8000/live
+        termux-microphone-record -r 16000 -c 1 | ffmpeg -f s16le -ar 16000 -ac 1 -i - -codec:a libmp3lame -q:a 4 -content_type audio/mpeg -f mp3 icecast://source:hackme@localhost:8000/live
         ;;
         
     ip)
