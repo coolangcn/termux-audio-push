@@ -73,4 +73,16 @@ http://[手机IP地址]:8000/live
 
 1. 需要在不同的Termux会话中分别运行server和stream命令
 2. 确保已在Android设置中正确配置权限和电池优化
+<<<<<<< HEAD
 3. 如果遇到问题，请使用stop命令停止所有服务后重新开始
+=======
+3. 如果遇到问题，请使用stop命令停止所有服务后重新开始
+
+## 许可证
+
+MIT License
+
+## 作者
+
+[coolangcn](https://github.com/coolangcn)
+>>>>>>> 3ca187f02c0263f15b2edaf1eb6b1af224dc82cd

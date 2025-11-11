@@ -32,6 +32,26 @@ case "$1" in
         # 创建Icecast配置文件
         echo "正在配置Icecast服务器..."
         ICECAST_CONFIG="/data/data/com.termux/files/usr/etc/icecast.xml"
+<<<<<<< HEAD
+=======
+        ICECAST_LOG_DIR="/data/data/com.termux/files/usr/var/log/icecast"
+        ICECAST_WEB_DIR="/data/data/com.termux/files/usr/share/icecast/web"
+        ICECAST_ADMIN_DIR="/data/data/com.termux/files/usr/share/icecast/admin"
+        
+        # 创建必要的目录
+        mkdir -p "$ICECAST_LOG_DIR"
+        mkdir -p "$ICECAST_WEB_DIR"
+        mkdir -p "$ICECAST_ADMIN_DIR"
+        
+        # 设置目录权限
+        chmod 755 "$ICECAST_LOG_DIR"
+        chmod 755 "$ICECAST_WEB_DIR"
+        chmod 755 "$ICECAST_ADMIN_DIR"
+        
+        # 设置日志文件权限
+        touch "$ICECAST_LOG_DIR/error.log" "$ICECAST_LOG_DIR/access.log"
+        chmod 666 "$ICECAST_LOG_DIR/error.log" "$ICECAST_LOG_DIR/access.log"
+>>>>>>> 3ca187f02c0263f15b2edaf1eb6b1af224dc82cd
 
         # 备份原始配置
         if [ ! -f "${ICECAST_CONFIG}.backup" ] && [ -f "$ICECAST_CONFIG" ]; then
@@ -39,11 +59,20 @@ case "$1" in
             echo "已备份原始Icecast配置文件"
         fi
 
+<<<<<<< HEAD
         # 生成新的Icecast配置文件
         cat > "$ICECAST_CONFIG" << 'EOF'
 <icecast>
     <location>Earth</location>
     <admin>admin@localhost</admin>
+=======
+        # 生成新的Icecast配置文件，针对Termux环境优化
+        cat > "$ICECAST_CONFIG" << 'EOF'
+<icecast>
+    <location>Termux Audio Stream</location>
+    <admin>admin@localhost</admin>
+    <hostname>localhost</hostname>
+>>>>>>> 3ca187f02c0263f15b2edaf1eb6b1af224dc82cd
 
     <limits>
         <clients>100</clients>
@@ -63,8 +92,11 @@ case "$1" in
         <admin-password>hackme</admin-password>
     </authentication>
 
+<<<<<<< HEAD
     <hostname>localhost</hostname>
 
+=======
+>>>>>>> 3ca187f02c0263f15b2edaf1eb6b1af224dc82cd
     <listen-socket>
         <port>8000</port>
         <bind-address>0.0.0.0</bind-address>
@@ -72,6 +104,10 @@ case "$1" in
 
     <http-headers>
         <header name="Access-Control-Allow-Origin" value="*" />
+<<<<<<< HEAD
+=======
+        <header name="Server" value="Termux Icecast" />
+>>>>>>> 3ca187f02c0263f15b2edaf1eb6b1af224dc82cd
     </http-headers>
 
     <paths>
@@ -89,6 +125,7 @@ case "$1" in
         <logsize>10000</logsize>
     </logging>
 
+<<<<<<< HEAD
     <mount>
         <mount-name>/live</mount-name>
         <mount-type>aac</mount-type>
@@ -98,6 +135,13 @@ case "$1" in
         <changeowner>
             <user>nobody</user>
             <group>nogroup</group>
+=======
+    <security>
+        <chroot>0</chroot>
+        <changeowner>
+            <user></user>
+            <group></group>
+>>>>>>> 3ca187f02c0263f15b2edaf1eb6b1af224dc82cd
         </changeowner>
     </security>
 </icecast>
@@ -121,7 +165,32 @@ EOF
     server)
         # 启动服务器模式
         echo "正在启动Icecast服务器..."
+<<<<<<< HEAD
         icecast -c /data/data/com.termux/files/usr/etc/icecast.xml -b
+=======
+        
+        # 确保必要的目录和文件存在
+        ICECAST_LOG_DIR="/data/data/com.termux/files/usr/var/log/icecast"
+        ICECAST_WEB_DIR="/data/data/com.termux/files/usr/share/icecast/web"
+        ICECAST_ADMIN_DIR="/data/data/com.termux/files/usr/share/icecast/admin"
+        
+        mkdir -p "$ICECAST_LOG_DIR"
+        mkdir -p "$ICECAST_WEB_DIR"
+        mkdir -p "$ICECAST_ADMIN_DIR"
+        
+        # 设置日志文件权限
+        touch "$ICECAST_LOG_DIR/error.log" "$ICECAST_LOG_DIR/access.log"
+        chmod 666 "$ICECAST_LOG_DIR/error.log" "$ICECAST_LOG_DIR/access.log"
+        
+        # 检查配置文件是否存在
+        ICECAST_CONFIG="/data/data/com.termux/files/usr/etc/icecast.xml"
+        if [ ! -f "$ICECAST_CONFIG" ]; then
+            echo "错误: Icecast配置文件不存在，请先运行安装命令"
+            exit 1
+        fi
+        
+        icecast -c "$ICECAST_CONFIG" -b
+>>>>>>> 3ca187f02c0263f15b2edaf1eb6b1af224dc82cd
         echo "Icecast服务器已在后台启动，监听端口8000"
         echo "您可以通过 http://[手机IP]:8000 访问服务器状态页面"
         echo "获取手机IP地址: ./termux_audio_push.sh ip"
@@ -143,9 +212,15 @@ EOF
         echo "手机IP地址: $IP"
         echo "在电脑上访问 http://$IP:8000/live 来收听音频流"
         
+<<<<<<< HEAD
         # 开始推流
         echo "正在启动音频推流..."
         termux-microphone-record -r 16000 -c 1 | ffmpeg -f s16le -ar 16000 -ac 1 -i - -codec:a aac -b:a 96k -content_type audio/aac -f adts icecast://source:hackme@localhost:8000/live
+=======
+        # 开始推流，添加content_type参数
+        echo "正在启动音频推流..."
+        termux-microphone-record -r 16000 -c 1 | ffmpeg -f s16le -ar 16000 -ac 1 -i - -codec:a libmp3lame -q:a 4 -content_type audio/mpeg -f mp3 icecast://source:hackme@localhost:8000/live
+>>>>>>> 3ca187f02c0263f15b2edaf1eb6b1af224dc82cd
         ;;
         
     ip)
