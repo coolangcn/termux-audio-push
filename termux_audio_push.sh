@@ -32,6 +32,14 @@ case "$1" in
         # 创建Icecast配置文件
         echo "正在配置Icecast服务器..."
         ICECAST_CONFIG="/data/data/com.termux/files/usr/etc/icecast.xml"
+        ICECAST_LOG_DIR="/data/data/com.termux/files/usr/var/log/icecast"
+        
+        # 创建日志目录
+        mkdir -p "$ICECAST_LOG_DIR"
+        
+        # 设置日志文件权限
+        touch "$ICECAST_LOG_DIR/error.log" "$ICECAST_LOG_DIR/access.log"
+        chmod 666 "$ICECAST_LOG_DIR/error.log" "$ICECAST_LOG_DIR/access.log"
 
         # 备份原始配置
         if [ ! -f "${ICECAST_CONFIG}.backup" ] && [ -f "$ICECAST_CONFIG" ]; then
@@ -117,6 +125,15 @@ EOF
     server)
         # 启动服务器模式
         echo "正在启动Icecast服务器..."
+        
+        # 确保日志目录存在
+        ICECAST_LOG_DIR="/data/data/com.termux/files/usr/var/log/icecast"
+        mkdir -p "$ICECAST_LOG_DIR"
+        
+        # 设置日志文件权限
+        touch "$ICECAST_LOG_DIR/error.log" "$ICECAST_LOG_DIR/access.log"
+        chmod 666 "$ICECAST_LOG_DIR/error.log" "$ICECAST_LOG_DIR/access.log"
+        
         icecast -c /data/data/com.termux/files/usr/etc/icecast.xml -b
         echo "Icecast服务器已在后台启动，监听端口8000"
         echo "您可以通过 http://[手机IP]:8000 访问服务器状态页面"
